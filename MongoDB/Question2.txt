@@ -1,0 +1,16 @@
+//Question 2.1////////////////////////////////////////////
+
+db.test.aggregate([
+    {$unwind: '$awards'},
+    {$group: {_id: '$awards.award', count: {$sum: 1}}}
+]);
+
+//Question 2.2////////////////////////////////////////////
+
+db.test.aggregate([
+    {$group: {_id: {$year: '$birth'}, document_ids: {$addToSet: '$_id'}}}
+]);
+
+
+
+

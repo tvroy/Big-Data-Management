@@ -1,0 +1,78 @@
+//Question 3.1////////////////////////////////////////////
+
+db.categories.insert({_id: 'MongoDB', parent: 'Databases'});
+db.categories.insert({_id: 'dbm', parent: 'Databases'});
+db.categories.insert({_id: 'Databases', parent: 'Programming'});
+db.categories.insert({_id: 'Languages', parent: 'Programming'});
+db.categories.insert({_id: 'Programming', parent: 'Books'});
+db.categories.insert({_id: 'Books', parent: null});
+
+var ancestors = [];
+var stack = [];
+var item = db.categories.findOne({_id: 'MongoDB'});
+stack.push(item);
+var i = 0;
+
+while (stack.length > 0) {
+    i = i + 1;
+    var current = stack.pop();
+    if(current.parent != null) {
+        var parent =  current.parent;
+        ancestors.push({Name: parent, Level: i});
+        stack.push(db.categories.findOne({_id: parent}));
+    }
+};
+ancestors; 
+
+//Question 3.2////////////////////////////////////////////
+
+var stack = [];
+var level_check = [];
+var item = db.categories.findOne({_id: 'Books'});
+stack.push(item);
+var height = 1;
+
+while (stack.length > 0) {
+    var current = stack.pop();
+    var children =  db.categories.find({parent: current._id});
+
+    //this if statement ensures that the height doesnt increase if it has already been increased by a sibling.
+    if (!(current._id in level_check)) {
+        if (children.hasNext() == true) {
+            height = height + 1;
+            level_check.push(current._id);
+        }
+    }
+
+    while (children.hasNext() == true) {
+        var child = children.next();
+        stack.push(child);
+    }
+};
+height; 
+
+//Question 3.3////////////////////////////////////////////
+
+db.childref.insert({_id: 'MongoDB', children: []});
+db.childref.insert({_id: 'dbm', children: []});
+db.childref.insert({_id: 'Databases', children: ['MongoDB', 'dbm']});
+db.childref.insert({_id: 'Languages', children: []});
+db.childref.insert({_id: 'Programming', children: ['Databases', 'Languages']});
+db.childref.insert({_id: 'Books', children: ['Programming']});
+
+var stack = []
+var descendants = [];
+var item = db.childref.findOne({_id: 'Books'});
+stack.push(item);
+
+while (stack.length > 0) {
+	var current = stack.pop();
+	var children = db.childref.find({_id: {$in: current.children}});
+
+	while (children.hasNext()) {
+		var child = children.next();
+		descendants.push(child._id);
+		stack.push(child);
+	}
+}
+descendants;
